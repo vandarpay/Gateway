@@ -1,11 +1,11 @@
 {
-  "name": "vandarpay/gateway",
+  "name": "Vandar/gateway",
   "homepage": "https://github.com/vandarpay/gateway",
-  "description": "vandarpay",
+  "description": "A Laravel package for connecting to all Iraninan payment  gateways",
   "keywords": [
     "laravel",
     "saman",
-    "vandarpay"
+    "vandar"
   ],
   "license": "MIT",
   "authors": [
@@ -28,18 +28,18 @@
   },
   "autoload": {
     "psr-4": {
-      "vandarpay\\Gateway\\": "src/",
-      "vandarpay\\Gateway\\Tests\\": "tests/"
+      "Vandar\\Gateway\\": "src/",
+      "Vandar\\Gateway\\Tests\\": "tests/"
     }
   },
   "minimum-stability": "dev",
   "extra": {
     "laravel": {
       "providers": [
-        "vandarpay\\Gateway\\GatewayServiceProvider"
+        "Vandar\\Gateway\\GatewayServiceProvider"
       ],
       "aliases": {
-        "Gateway": "vandarpay\\Gateway\\Gateway"
+        "Gateway": "Vandar\\Gateway\\Gateway"
       }
     }
   }
