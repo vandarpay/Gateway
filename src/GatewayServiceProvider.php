@@ -1,6 +1,6 @@
 <?php
 
-namespace vandarpay\Gateway;
+namespace Vandar\Gateway;
 
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\ServiceProvider;
@@ -54,9 +54,9 @@ class GatewayServiceProvider extends ServiceProvider
     private function getProvider()
     {
         if (version_compare(\Illuminate\Foundation\Application::VERSION, '5.0', '<')) {
-            $provider = 'vandarpay\Gateway\GatewayServiceProviderLaravel4';
+            $provider = 'Vandar\Gateway\GatewayServiceProviderLaravel4';
         } else {
-            $provider = 'vandarpay\Gateway\GatewayServiceProviderLaravel5';
+            $provider = 'Vandar\Gateway\GatewayServiceProviderLaravel5';
         }
 
         return new $provider($this->app);

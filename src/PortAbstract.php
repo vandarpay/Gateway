@@ -1,8 +1,8 @@
 <?php
-namespace vandarpay\Gateway;
+namespace Vandar\Gateway;
 
 use Illuminate\Support\Facades\Request;
-use vandarpay\Gateway\Enum;
+use Vandar\Gateway\Enum;
 use Carbon\Carbon;
 
 abstract class PortAbstract

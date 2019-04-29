@@ -1,12 +1,12 @@
 <?php
 
-namespace vandarpay\Gateway;
+namespace Vandar\Gateway;
 
-use vandarpay\Gateway\Saman\Saman;
-use vandarpay\Gateway\Exceptions\RetryException;
-use vandarpay\Gateway\Exceptions\PortNotFoundException;
-use vandarpay\Gateway\Exceptions\InvalidRequestException;
-use vandarpay\Gateway\Exceptions\NotFoundTransactionException;
+use Vandar\Gateway\Saman\Saman;
+use Vandar\Gateway\Exceptions\RetryException;
+use Vandar\Gateway\Exceptions\PortNotFoundException;
+use Vandar\Gateway\Exceptions\InvalidRequestException;
+use Vandar\Gateway\Exceptions\NotFoundTransactionException;
 use Illuminate\Support\Facades\DB;
 
 class GatewayResolver

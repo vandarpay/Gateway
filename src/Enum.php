@@ -1,6 +1,6 @@
 <?php
 
-namespace vandarpay\Gateway;
+namespace Vandar\Gateway;
 
 class Enum
 {

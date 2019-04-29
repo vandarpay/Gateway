@@ -1,11 +1,11 @@
 <?php
 
-namespace vandarpay\Gateway\Saman;
+namespace Vandar\Gateway\Saman;
 
 use Illuminate\Support\Facades\Input;
 use SoapClient;
-use vandarpay\Gateway\PortAbstract;
-use vandarpay\Gateway\PortInterface;
+use Vandar\Gateway\PortAbstract;
+use Vandar\Gateway\PortInterface;
 
 class Saman extends PortAbstract implements PortInterface
 {

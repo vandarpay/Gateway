@@ -1,6 +1,6 @@
 <?php
 
-namespace vandarpay\Gateway\Exceptions;
+namespace Vandar\Gateway\Exceptions;
 
 class NotFoundTransactionException extends GatewayException
 {

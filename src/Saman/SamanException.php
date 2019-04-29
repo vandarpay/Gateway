@@ -1,8 +1,8 @@
 <?php
 
-namespace vandarpay\Gateway\Saman;
+namespace Vandar\Gateway\Saman;
 
-use vandarpay\Gateway\Exceptions\BankException;
+use Vandar\Gateway\Exceptions\BankException;
 
 class SamanException extends BankException
 {
