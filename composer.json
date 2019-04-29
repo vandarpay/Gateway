@@ -1,0 +1,46 @@
+{
+  "name": "vandar/gateway",
+  "homepage": "https://github.com/vandarpay/gateway",
+  "description": "A Laravel package for connecting to all Iraninan payment  gateways",
+  "keywords": [
+    "laravel",
+    "saman",
+    "vandar"
+  ],
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Vandar",
+      "email": "info@vandar.io"
+    },
+    {
+      "name": "Vandar",
+      "email": "info@vandar.io"
+    },
+    {
+      "name": "Vandar",
+      "email": "info@vandar.io"
+    }
+  ],
+  "require": {
+    "nesbot/carbon": "~1.20",
+    "paypal/rest-api-sdk-php": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "Vandar\\Gateway\\": "src/",
+      "Vandar\\Gateway\\Tests\\": "tests/"
+    }
+  },
+  "minimum-stability": "dev",
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Vandar\\Gateway\\GatewayServiceProvider"
+      ],
+      "aliases": {
+        "Gateway": "Vandar\\Gateway\\Gateway"
+      }
+    }
+  }
+}
