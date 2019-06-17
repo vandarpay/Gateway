@@ -63,6 +63,8 @@ interface PortInterface
      */
     public function setCallback($url);
 
+    public function setCellNumber($cellNumner);
+
     public function setMerchant($merchant);
 
     public function setMerchantPassword($password);
@@ -95,4 +97,3 @@ interface PortInterface
      */
     public function verify($transaction);
 }
-

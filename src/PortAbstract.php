@@ -57,7 +57,9 @@ abstract class PortAbstract
 	 *
 	 * @var url
 	 */
-	protected $callbackUrl;
+    protected $callbackUrl;
+
+    protected $cellNumber;
 
 	protected $merchant;
 
@@ -95,7 +97,7 @@ abstract class PortAbstract
 	/**
 	 * @return mixed
 	 */
-	function getTable() 
+	function getTable()
 	{
 		return $this->db->table($this->config->get('gateway.table'));
 	}
@@ -332,4 +334,3 @@ abstract class PortAbstract
 		$url_array['path'] . '?' . http_build_query($query_array);
 	}
 }
-
