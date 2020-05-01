@@ -2,6 +2,7 @@
 
 namespace Vandar\Gateway\Pasargad;
 
+use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Request;
 use Vandar\Gateway\Enum;
 use Vandar\Gateway\Parsian\ParsianErrorException;
@@ -17,7 +18,8 @@ class Pasargad extends PortAbstract implements PortInterface
    */
 
   protected $checkTransactionUrl = 'https://pep.shaparak.ir/CheckTransactionResult.aspx';
-  protected $verifyUrl = 'https://pep.shaparak.ir/VerifyPayment.aspx';
+  protected $verifyUrl = 'https://pep.shaparak.ir/Api/v1/Payment/VerifyPayment';
+  // protected $verifyUrl = 'https://pep.shaparak.ir/VerifyPayment.aspx';
   protected $refundUrl = 'https://pep.shaparak.ir/doRefund.aspx';
 
   /**
@@ -156,17 +158,17 @@ class Pasargad extends PortAbstract implements PortInterface
     $array = Parser::makeXMLTree($result);
     $array = $array['resultObj'];
 
-    dump($array);
-
     $verifyResult = $this->callVerifyPayment($array);
 
-    $array['result'] = $verifyResult['result'] ?? false;
+    $array['result'] = $verifyResult['IsSuccess'] ?? false;
 
 
     if ($array['result'] != "True") {
       $this->newLog(-1, Enum::TRANSACTION_FAILED_TEXT);
       $this->transactionFailed();
       throw new PasargadErrorException(Enum::TRANSACTION_FAILED_TEXT, -1);
+    } else {
+      $this->cardNumber = $verifyResult['MaskedCardNumber'];
     }
 
     $this->refId = $array['transactionReferenceID'];
@@ -190,23 +192,40 @@ class Pasargad extends PortAbstract implements PortInterface
     $invoiceDate = $data['invoiceDate'];
     $timeStamp = date("Y/m/d H:i:s");
     $amount = $data['amount'];
-    $signData = "#" . $merchantCode . "#" . $terminalCode . "#" . $invoiceNumber . "#" . $invoiceDate . "#" . $amount . "#" . $timeStamp . "#";
-    $signDataSha1 = sha1($signData, true);
-    $tempSign = $processor->sign($signDataSha1);
-    $sign = base64_encode($tempSign);
 
-    $body = [
+    $signData = [
       'merchantCode' => $merchantCode,
       'terminalCode' => $terminalCode,
       'invoiceNumber' => $invoiceNumber,
       'invoiceDate' => $invoiceDate,
       'amount' => $amount,
-      'timeStamp' => $timeStamp,
-      'sign' => $sign
+      'timeStamp' => $timeStamp
     ];
+    $signDataSha1 = sha1(json_encode($signData), true);
+    $tempSign = $processor->sign($signDataSha1);
+    $sign = base64_encode($tempSign);
 
+    $verify = new Client();
+    $result = $verify->request(
+      'POST',
+      $this->verifyUrl,
+      [
+        'headers' => [
+          'Content-Type' => 'Application/json',
+          'Sign' => $sign
+        ],
+        'json' => [
+          'merchantCode' => $merchantCode,
+          'terminalCode' => $terminalCode,
+          'invoiceNumber' => $invoiceNumber,
+          'invoiceDate' => $invoiceDate,
+          'amount' => $amount,
+          'timeStamp' => $timeStamp
+        ]
+      ]
+    );
 
-    return $this->convertXMLtoArray(Parser::post2https($body, $this->verifyUrl));
+    return json_decode($result->getBody(), true);
   }
 
   /**
