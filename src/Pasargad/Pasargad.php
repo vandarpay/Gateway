@@ -168,7 +168,7 @@ class Pasargad extends PortAbstract implements PortInterface
       $this->transactionFailed();
       throw new PasargadErrorException(Enum::TRANSACTION_FAILED_TEXT, -1);
     } else {
-      $this->cardNumber = $verifyResult['MaskedCardNumber'];
+      $this->cardNumber = str_replace('-', '', $verifyResult['MaskedCardNumber']);
     }
 
     $this->refId = $array['transactionReferenceID'];
