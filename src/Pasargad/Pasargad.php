@@ -2,8 +2,10 @@
 
 namespace Vandar\Gateway\Pasargad;
 
+use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Request;
+use Log;
 use Vandar\Gateway\Enum;
 use Vandar\Gateway\Parsian\ParsianErrorException;
 use Vandar\Gateway\PortAbstract;
@@ -20,7 +22,7 @@ class Pasargad extends PortAbstract implements PortInterface
   protected $checkTransactionUrl = 'https://pep.shaparak.ir/CheckTransactionResult.aspx';
   protected $verifyUrl = 'https://pep.shaparak.ir/Api/v1/Payment/VerifyPayment';
   // protected $verifyUrl = 'https://pep.shaparak.ir/VerifyPayment.aspx';
-  protected $refundUrl = 'https://pep.shaparak.ir/doRefund.aspx';
+  protected $refundUrl = 'https://pep.shaparak.ir/Api/v1/Payment/RefundPayment';
 
   /**
    * Address of gate for redirect
@@ -169,6 +171,7 @@ class Pasargad extends PortAbstract implements PortInterface
       throw new PasargadErrorException(Enum::TRANSACTION_FAILED_TEXT, -1);
     } else {
       $this->cardNumber = str_replace('-', '', $verifyResult['MaskedCardNumber']);
+      $this->securePan = $verifyResult['HashedCardNumber'];
     }
 
     $this->refId = $array['transactionReferenceID'];
@@ -224,6 +227,68 @@ class Pasargad extends PortAbstract implements PortInterface
         ]
       ]
     );
+
+    return json_decode($result->getBody(), true);
+  }
+
+  public function refund($transaction)
+  {
+    parent::refund($transaction);
+
+    return $this->refundPayment($transaction);
+  }
+
+  public function refundPayment($transaction)
+  {
+    $fields = array(
+      'invoiceUID' => $transaction->ref_id,
+    );
+
+    $result = Parser::post2https($fields, $this->checkTransactionUrl);
+    $array = Parser::makeXMLTree($result);
+    $array = $array['resultObj'];
+
+    $processor = new RSAProcessor($this->config->get('gateway.pasargad.certificate-path'), RSAKeyType::XMLFile);
+    $merchantCode = $this->config->get('gateway.pasargad.merchantId');
+    $terminalCode = $this->config->get('gateway.pasargad.terminalId');
+    $invoiceNumber = $array['invoiceNumber'];
+    $invoiceDate = $array['invoiceDate'];
+    $timeStamp = date("Y/m/d H:i:s");
+
+    $signData = [
+      'merchantCode' => $merchantCode,
+      'terminalCode' => $terminalCode,
+      'invoiceNumber' => $invoiceNumber,
+      'invoiceDate' => $invoiceDate,
+      'timeStamp' => $timeStamp
+    ];
+
+    Log::info($signData);
+
+    $signDataSha1 = sha1(json_encode($signData), true);
+    $tempSign = $processor->sign($signDataSha1);
+    $sign = base64_encode($tempSign);
+
+    $refund = new Client();
+    $result = $refund->request(
+      'POST',
+      $this->refundUrl,
+      [
+        'headers' => [
+          'Content-Type' => 'Application/json',
+          'Sign' => $sign
+        ],
+        'json' => [
+          'merchantCode' => $merchantCode,
+          'terminalCode' => $terminalCode,
+          'invoiceNumber' => $invoiceNumber,
+          'invoiceDate' => $invoiceDate,
+          'timeStamp' => $timeStamp
+        ]
+      ]
+    );
+
+    Log::info($result->getBody());
 
     return json_decode($result->getBody(), true);
   }

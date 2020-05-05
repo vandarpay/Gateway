@@ -27,6 +27,8 @@ abstract class PortAbstract
    */
   protected $cardNumber = '';
 
+  protected $securePan = null;
+
   /**
    * @var Config
    */
@@ -203,6 +205,14 @@ abstract class PortAbstract
     $this->refId = $transaction->ref_id;
   }
 
+  function refund($transaction)
+  {
+    $this->transaction = $transaction;
+    $this->transactionId = $transaction->id;
+    $this->amount = intval($transaction->price);
+    $this->refId = $transaction->ref_id;
+  }
+
   function getTimeId()
   {
     $genuid = function () {
@@ -248,6 +258,7 @@ abstract class PortAbstract
       'status' => Enum::TRANSACTION_SUCCEED,
       'tracking_code' => $this->trackingCode,
       'card_number' => $this->cardNumber,
+      'cid' => $this->securePan,
       'payment_date' => Carbon::now(),
       'updated_at' => Carbon::now(),
     ]);

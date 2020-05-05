@@ -114,6 +114,22 @@ class GatewayResolver
   }
 
 
+  public function refund($transaction)
+  {
+    $transaction = $this->getTable()->whereId($transaction->id)->first();
+
+    if (!$transaction)
+      throw new NotFoundTransactionException;
+
+    if (in_array($transaction->status, [Enum::TRANSACTION_FAILED]))
+      throw new RetryException;
+
+    $this->make($transaction->port);
+
+    return $this->port->refund($transaction);
+  }
+
+
   /**
    * Create new object from port class
    *
