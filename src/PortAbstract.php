@@ -258,7 +258,6 @@ abstract class PortAbstract
       'status' => Enum::TRANSACTION_SUCCEED,
       'tracking_code' => $this->trackingCode,
       'card_number' => $this->cardNumber,
-      'cid' => $this->securePan,
       'payment_date' => Carbon::now(),
       'updated_at' => Carbon::now(),
     ]);
