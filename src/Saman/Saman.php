@@ -14,7 +14,7 @@ class Saman extends PortAbstract implements PortInterface
    *
    * @var string
    */
-  protected $serverUrl = 'https://sep.shaparak.ir/payment.aspx';
+  protected $serverUrl = 'https://verify.sep.ir/Payments/ReferencePayment.asmx?WSDL';
 
   /**
    * {@inheritdoc}
