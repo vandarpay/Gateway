@@ -258,6 +258,7 @@ abstract class PortAbstract
       'status' => Enum::TRANSACTION_SUCCEED,
       'tracking_code' => $this->trackingCode,
       'card_number' => $this->cardNumber,
+      'cid' => $this->securePan,
       'payment_date' => Carbon::now(),
       'updated_at' => Carbon::now(),
     ]);
@@ -273,6 +274,19 @@ abstract class PortAbstract
   {
     return $this->getTable()->whereId($this->transactionId)->update([
       'status' => Enum::TRANSACTION_FAILED,
+      'updated_at' => Carbon::now(),
+    ]);
+  }
+
+  /**
+   * transactionSetToken
+   *
+   * @param  string $token
+   *
+   */
+  protected function transactionSetToken(string $token){
+    return $this->getTable()->whereId($this->transactionId)->update([
+      'token' => $token,
       'updated_at' => Carbon::now(),
     ]);
   }

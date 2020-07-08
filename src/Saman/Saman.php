@@ -2,6 +2,7 @@
 
 namespace Vandar\Gateway\Saman;
 
+use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Input;
 use SoapClient;
 use Vandar\Gateway\PortAbstract;
@@ -14,7 +15,21 @@ class Saman extends PortAbstract implements PortInterface
    *
    * @var string
    */
-  protected $serverUrl = 'https://verify.sep.ir/Payments/ReferencePayment.asmx?WSDL';
+  protected $serverUrl = 'https://sep.shaparak.ir/payments/referencepayment.asmx?wsdl';
+
+  /**
+   * getTokenUrl
+   *
+   * @var string
+   */
+  protected $getTokenUrl = 'https://sep.shaparak.ir/OnlinePG/OnlinePG';
+
+  /**
+   * sendTokenUrl
+   *
+   * @var string
+   */
+  protected $sendTokenUrl = 'https://sep.shaparak.ir/OnlinePG/SendToken?token=';
 
   /**
    * {@inheritdoc}
@@ -41,16 +56,33 @@ class Saman extends PortAbstract implements PortInterface
    */
   public function redirect()
   {
-    $data = [
-      'amount' => $this->amount,
-      'merchant' => $this->getMerchant(),
-      'cellNumber' => $this->getCellNumber(),
-      'resNum' => $this->transactionId(),
-      'callBackUrl' => $this->getCallback()
-    ];
+    $client = new Client();
 
+    $response = $client->request(
+      'post',
+      $this->getTokenUrl,
+      [
+        'headers' => [
+          'Content-Type' => 'application/json'
+        ],
+        'json' => [
+          'Action' => 'token',
+          'TerminalId' => $this->getMerchant(),
+          'Amount' => $this->amount,
+          'CellNumber' => $this->getCellNumber(),
+          'ResNum' => $this->transactionId(),
+          'RedirectUrl' => $this->getCallback()
+        ]
+      ]
+    );
+
+    $responseContent = json_decode($response->getBody()->getContents(), true);
+
+    $this->transactionSetToken($responseContent['token']);
+
+    $go = $this->sendTokenUrl . $responseContent['token'];
     // dd($data);
-    return \View::make('gateway::saman-redirector')->with($data);
+    return redirect()->away($go);
   }
 
   /**
@@ -145,7 +177,7 @@ class Saman extends PortAbstract implements PortInterface
   protected function userPayment()
   {
     $this->refId = Input::get('RefNum');
-    $this->trackingCode = Input::get('TRACENO');
+    $this->trackingCode = Input::get('TraceNo');
     $this->cardNumber = Input::get('SecurePan');
     $payRequestRes = Input::get('State');
     $payRequestResCode = Input::get('StateCode');
