@@ -15,7 +15,7 @@ class Saman extends PortAbstract implements PortInterface
    *
    * @var string
    */
-  protected $serverUrl = 'https://sep.shaparak.ir/payments/referencepayment.asmx?wsdl';
+  protected $serverUrl = 'https://sep.shaparak.ir/verifyTxnRandomSessionkey/ipg/VerifyTranscation';
 
   /**
    * getTokenUrl
@@ -209,19 +209,33 @@ class Saman extends PortAbstract implements PortInterface
       "password" => $this->getMerchantPassword(),
     );
 
-
     try {
-      $soap = new SoapClient($this->serverUrl);
-      $response = $soap->VerifyTransaction($fields["RefNum"], $fields["merchantID"]);
-    } catch (\SoapFault $e) {
+      $client = new Client();
+
+      $response = $client->request(
+        'post',
+        $this->serverUrl,
+        [
+          'headers' => [
+            'Content-Type' => 'application/json'
+          ],
+          'json' => [
+            'RefNum' => $this->refId,
+            'TerminalNumber' => $this->getMerchant(),
+            'NationalCode' => "",
+            'IgnoreNationalcode' => true
+          ]
+        ]
+      );
+      $responseContent = json_decode($response->getBody()->getContents(), true);
+    } catch (\Exception $e) {
       $this->transactionFailed();
-      $this->newLog('SoapFault', $e->getMessage());
+      $this->newLog('restFault', $e->getMessage());
       throw $e;
     }
 
-    $response = intval($response);
 
-    if ($response == $this->amount) {
+    if ($responseContent['Success'] && $responseContent['TransactionDetail']['OrginalAmount'] == $this->amount) {
       $this->transactionSucceed();
       return true;
     }
