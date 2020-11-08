@@ -342,4 +342,14 @@ class Pasargad extends PortAbstract implements PortInterface
 
     return $this->merchant_password;
   }
+
+    public function setNationalCode($national_code)
+    {
+        // TODO: Implement setNationalCode() method.
+    }
+
+    public function getNationalCode()
+    {
+        // TODO: Implement getNationalCode() method.
+    }
 }

@@ -73,7 +73,7 @@ interface PortInterface
 
     public function setNationalCode($national_code);
 
-    public function getNationalCode($national_code);
+    public function getNationalCode();
 
     /**
      * Gets callback url
